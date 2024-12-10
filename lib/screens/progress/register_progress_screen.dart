@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nutri_gym/services/api_service.dart';
 
 class RegisterProgressScreen extends StatefulWidget {
-  final String token; // Token de autenticación del usuario
-  final double caloriasObjetivo; // Calorías objetivo calculadas
+  final String token;
+  final double caloriasObjetivo;
 
   RegisterProgressScreen({
     required this.token,
@@ -15,13 +15,12 @@ class RegisterProgressScreen extends StatefulWidget {
 }
 
 class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
-  final TextEditingController _caloriasController = TextEditingController(); // Controlador para las calorías
+  final TextEditingController _caloriasController = TextEditingController();
 
   void _updateProgress() async {
     final int caloriasConsumidas = int.tryParse(_caloriasController.text) ?? 0;
 
     if (caloriasConsumidas <= 0) {
-      // Mostrar un mensaje de error si las calorías ingresadas no son válidas
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Por favor ingresa una cantidad válida de calorías.'),
         backgroundColor: Colors.red,
@@ -30,17 +29,14 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
     }
 
     try {
-      // Calcular el nuevo total después de agregar las calorías
       final double nuevoTotal = caloriasConsumidas + widget.caloriasObjetivo;
 
-      // Llamar al método de la API para registrar el progreso
       await ApiService.updateProgress(
         token: widget.token,
         caloriasConsumidas: caloriasConsumidas,
         caloriasObjetivo: widget.caloriasObjetivo,
       );
 
-      // Mostrar advertencia si el nuevo total excede el objetivo
       if (nuevoTotal > widget.caloriasObjetivo) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
@@ -49,20 +45,16 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
           backgroundColor: Colors.amber,
         ));
       } else {
-        // Mostrar un mensaje de éxito si no se excede el objetivo
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Progreso actualizado exitosamente.'),
           backgroundColor: Colors.green,
         ));
       }
 
-      // Limpiar el campo de texto
       _caloriasController.clear();
 
-      // Volver a la pantalla anterior (HomeScreen) y recargar estadísticas
-      Navigator.pop(context, true); // Enviar una señal para recargar
+      Navigator.pop(context, true);
     } catch (e) {
-      // Mostrar un mensaje de error si falla la solicitud
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Error al actualizar progreso: $e'),
         backgroundColor: Colors.red,

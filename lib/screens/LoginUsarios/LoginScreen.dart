@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:nutri_gym/screens/Home/HomeScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatelessWidget {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Función para calcular la edad
   int calculateAge(DateTime birthDate) {
     DateTime today = DateTime.now();
     int age = today.year - birthDate.year;
@@ -41,9 +41,29 @@ class LoginScreen extends StatelessWidget {
 
   void handleLoginResponse(BuildContext context, Map<String, dynamic> responseData) {
     if (responseData['success']) {
-      final token = responseData['token'];
-      final isProfileComplete = responseData['user']['perfil_completo'] ?? false;
+      final token = responseData['token']; // Obtén el token del login
+      _saveToken(token); // Guarda el token
+
+      final isProfileComplete = responseData['user']['perfil_completo'] == true || responseData['user']['perfil_completo'] == 1;
       final objective = responseData['user']['objetivo'];
+
+      // Calcular edad si la fecha de nacimiento está presente
+      int calculateAgeFromDOB(DateTime birthDate) {
+        DateTime today = DateTime.now();
+        int age = today.year - birthDate.year;
+        if (today.month < birthDate.month ||
+            (today.month == birthDate.month && today.day < birthDate.day)) {
+          age--;
+        }
+        return age;
+      }
+
+      // Verifica si la edad está disponible o calcula a partir de la fecha de nacimiento
+      int age = responseData['user']['edad'] != null
+          ? responseData['user']['edad']
+          : responseData['user']['fecha_nacimiento'] != null
+          ? calculateAgeFromDOB(DateTime.parse(responseData['user']['fecha_nacimiento']))
+          : 0; // Valor predeterminado si no hay edad ni fecha de nacimiento
 
       if (!isProfileComplete) {
         Navigator.pushReplacementNamed(
@@ -61,7 +81,7 @@ class LoginScreen extends StatelessWidget {
               gender: responseData['user']['genero_usuario'],
               weight: double.parse(responseData['user']['peso_usuario'].toString()),
               height: double.parse(responseData['user']['altura_usuario'].toString()),
-              age: calculateAge(DateTime.parse(responseData['user']['fecha_nacimiento'])),
+              age: age, // Usa la edad calculada o proporcionada
             ),
           ),
         );
@@ -74,37 +94,220 @@ class LoginScreen extends StatelessWidget {
     }
   }
 
+
+// Método para guardar el token después de iniciar sesión
+  Future<void> _saveToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_token', token);  // Guarda el token
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Iniciar Sesión')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: 'Correo Electrónico'),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/background_image.png'),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.only(
+                ),
+              ),
+
             ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
+          ),
+          Positioned.fill(
+            top: MediaQuery.of(context).size.height * 0.2,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(100),
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 50),
+                      const Text(
+                        'Login',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4DC39A),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 70),
+                      // Campo de email
+                      // Campo de email
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Email',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF4DC39A),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: TextField(
+                                  controller: emailController,
+                                  style: const TextStyle(color: Colors.black),
+                                  decoration: const InputDecoration(
+                                    hintText: 'example@gmail.com',
+                                    hintStyle: TextStyle(
+                                      color: Colors.black38,
+                                    ),
+                                    border: InputBorder.none, // Sin bordes
+                                    contentPadding: EdgeInsets.symmetric(vertical: 5),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Password',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF4DC39A),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                child: TextField(
+                                  controller: passwordController,
+                                  obscureText: true,
+                                  style: const TextStyle(color: Colors.black),
+                                  decoration: const InputDecoration(
+                                    hintText: '********',
+                                    hintStyle: TextStyle(
+                                      color: Colors.black38,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 5),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () => loginUser(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4DC39A),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold,  color:Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child: const Text(
+                            "don’t have account? click here",
+                            style: TextStyle(
+                              color: Color(0xFF4DC39A),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: Color(0xFF4DC39A),
+                              thickness: 1,
+                              endIndent: 10,
+                            ),
+                          ),
+                          Text(
+                            'OR',
+                            style: TextStyle(
+                              color:Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: Color(0xFF4DC39A), // Color verde
+                              thickness: 1,
+                              indent: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {},
+                            child: Image.asset(
+                              'assets/images/facebook.png',
+                              height: 50,
+                              width: 50,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {},
+                            child: Image.asset(
+                              'assets/images/google.png',
+                              height: 50,
+                              width: 50,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => loginUser(context),
-              child: Text('Iniciar Sesión'),
-            ),
-            SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text('¿No tienes una cuenta? Regístrate'),
-            ),
-          ],
-        ),
+          ),
+
+        ],
       ),
     );
   }

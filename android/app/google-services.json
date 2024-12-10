@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "375293020177",
+    "project_id": "nutrigym-81ac2",
+    "storage_bucket": "nutrigym-81ac2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375293020177:android:149ca7681a63227e9a49b0",
+        "android_client_info": {
+          "package_name": "com.example.nutri_gym"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3n7MrWfYCIS7C5wBbBuHrhduF8FT6B_w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

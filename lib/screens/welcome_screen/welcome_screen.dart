@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutri_gym/screens/LoginUsarios/LoginScreen.dart';
 
-import '../Login/landing.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -17,7 +16,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           Positioned.fill(
             child: Container(
-              color: Colors.white,  // Color de fondo (puedes personalizarlo)
+              color: Colors.white,
             ),
           ),
 
@@ -34,7 +33,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           AnimatedPositioned(
             duration: Duration(seconds: 3),
             top: 200.0,
-            left: -60.0, // Ajustamos la posición para que quede parcialmente cortada
+            left: -60.0,
             child: CircleAvatar(
               radius: 80.0,
               backgroundImage: AssetImage('assets/images/apple_icon.jpg'), // Tu imagen
@@ -84,9 +83,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
 
-          // Texto de bienvenida más abajo de la mitad de la pantalla
           Positioned(
-            top: MediaQuery.of(context).size.height / 1.5, // Ajustamos para estar más abajo
+            top: MediaQuery.of(context).size.height / 1.5,
             left: 0,
             right: 0,
             child: Column(
@@ -129,13 +127,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       const end = Offset.zero;
                       const curve = Curves.easeInOut;
 
-                      // Aumenta la duración para hacer la transición más lenta
                       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                       var offsetAnimation = animation.drive(tween);
 
                       return SlideTransition(position: offsetAnimation, child: child);
                     },
-                    transitionDuration: Duration(seconds: 1), // Duración más lenta de la animación
+                    transitionDuration: Duration(seconds: 1),
                   ),
                 );
               },
@@ -146,11 +143,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green, // Color verde para el texto "Skip"
+                      color: Colors.green,
                     ),
                   ),
                   Icon(
-                    Icons.arrow_forward, // Icono ">"
+                    Icons.arrow_forward,
                     color: Colors.green,
                   ),
                 ],
